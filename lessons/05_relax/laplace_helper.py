@@ -40,6 +40,7 @@ def plot_3D(x, y, p, elev=30, azi=45):
     ax.set_zlabel('$z$')
     ax.view_init(elev,azi)
 
+
 def p_analytical(x, y):
     '''Returns the analytical solution for the given Laplace Problem on a grid
     with coordinates x and y
