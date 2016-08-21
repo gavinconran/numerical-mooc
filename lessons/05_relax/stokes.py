@@ -29,15 +29,6 @@ x = numpy.linspace(0,1,nx)
 y = numpy.linspace(0,1,ny)
 psi[-2,:] = 1
 
-Uy = (psi[0:-1,:-1] - psi[0:-1,1:])/dy
-Ux = (psi[:-1,0:-1] - psi[1:,0:-1])/dx
-U_top = Ux[-1,1:-1]
-
-U_top = (psi[-2,:] - psi[-1,:])/(dy)
-U_bottom = (psi[1,:] - psi[0,:])/(dy)
-
-U_left = (psi[:,-2] - psi[:,-1])/(dy)
-U_right = (psi[:,1] - psi[:,0])/(dy)
 
 def L1norm(new, old):
     norm = numpy.sum(numpy.abs(new-old))
@@ -78,10 +69,10 @@ def laplace2d(p, psi, l2_target):
 
         
         # Apply Neumann BC to omega
-        #omega[-1,2:-1] = (1/2*dy**2) * (8*psi[-1,1:-2] - psi[-1,:-3]) #- 3*(U_top[2:-1]+1) / dy
-        #omega[0,2:-1] = (1/2*dy**2) * (8*psi[0,1:-2] - psi[0,:-3]) #- 3*U_bottom[2:-1] / dy
-        #omega[2:-1,0] = (1/2*dy**2) * (8*psi[1:-2,0] - psi[:-3,0]) #- 3*U_left[2:-1] / dx
-        #omega[2:-1,-1] = (1/2*dy**2) * (8*psi[1:-2,-1] - psi[:-3,-1]) #- 3*U_right[2:-1] / dx
+        omega[-1,2:-1] = (1/2*dy**2) * (8*psi[-1,1:-2] - psi[-1,:-3]) #- 3*(U_top[2:-1]+1) / dy
+        omega[0,2:-1] = (1/2*dy**2) * (8*psi[0,1:-2] - psi[0,:-3]) #- 3*U_bottom[2:-1] / dy
+        omega[2:-1,0] = (1/2*dy**2) * (8*psi[1:-2,0] - psi[:-3,0]) #- 3*U_left[2:-1] / dx
+        omega[2:-1,-1] = (1/2*dy**2) * (8*psi[1:-2,-1] - psi[:-3,-1]) #- 3*U_right[2:-1] / dx
         #p[1:-1, -1] = p[1:-1, -2]
         l2norm = L2_error(p, pn)
      
@@ -147,11 +138,11 @@ def poisson_2d(omega, psi, dx, dy, l1_target):
         l1_conv.append(l1_norm)
     
     print('Number of Jacobi iterations: {0:d}'.format(iterations))
-    return omega, psi, l1_conv, U_top, U_bottom, U_left, U_right        
+    return omega, psi, l1_conv        
 
 # compute psi
-print(psi) 
-omega, psi, l2_conv, U_top, U_bottom, U_left, U_right = poisson_2d(psi.copy(), omega.copy(), dx, dy, l1_target)
+#print(psi) 
+omega, psi, l2_conv = poisson_2d(psi.copy(), omega.copy(), dx, dy, l1_target)
 
 
 #pyplot.figure(figsize=(7,7))
@@ -164,6 +155,6 @@ print('max omega: ', numpy.amax(numpy.abs(omega)))
 print('max psi: ', numpy.amax(numpy.abs(psi)))
 
 print(numpy.round(psi[32,::8], 4)) 
-print(psi) 
+#print(psi) 
 
 
