@@ -46,7 +46,7 @@ def L1norm(new, old):
 def L2_error(p, pn):
     return numpy.sqrt(numpy.sum((p - pn)**2)/numpy.sum(pn**2))
 
-def laplace2d(p, l2_target):
+def laplace2d(p, psi, l2_target):
     '''Iteratively solves the Laplace equation using the Jacobi method
     
     Parameters:
@@ -69,9 +69,20 @@ def laplace2d(p, l2_target):
         pn = p.copy()
         p[1:-1,1:-1] = .25 * (pn[1:-1,2:] + pn[1:-1, :-2] \
                               + pn[2:, 1:-1] + pn[:-2, 1:-1])
+
+        # update velocity
+        U_top = (psi[-2,:] - psi[-1,:]) /(dy)
+        U_bottom = (psi[1,:] - psi[0,:]) /(dy)
+        U_left = (psi[:,-2] - psi[:,-1]) /(dy)
+        U_right = (psi[:,1] - psi[:,0]) /(dy)
+
         
-        ##Neumann B.C. along x = L
-        p[1:-1, -1] = p[1:-1, -2]
+        # Apply Neumann BC to omega
+        #omega[-1,2:-1] = (1/2*dy**2) * (8*psi[-1,1:-2] - psi[-1,:-3]) #- 3*(U_top[2:-1]+1) / dy
+        #omega[0,2:-1] = (1/2*dy**2) * (8*psi[0,1:-2] - psi[0,:-3]) #- 3*U_bottom[2:-1] / dy
+        #omega[2:-1,0] = (1/2*dy**2) * (8*psi[1:-2,0] - psi[:-3,0]) #- 3*U_left[2:-1] / dx
+        #omega[2:-1,-1] = (1/2*dy**2) * (8*psi[1:-2,-1] - psi[:-3,-1]) #- 3*U_right[2:-1] / dx
+        #p[1:-1, -1] = p[1:-1, -2]
         l2norm = L2_error(p, pn)
      
     return p
@@ -123,22 +134,9 @@ def poisson_2d(omega, psi, dx, dy, l1_target):
         psi[:,0] = 0    #psi[:,1]
         psi[:,-1] = 0   #psi[:,-2]
         
-        # update velocity
-        U_top = (psi[-2,:] - psi[-1,:]) /(dy)
-        U_bottom = (psi[1,:] - psi[0,:]) /(dy)
-
-        U_left = (psi[:,-2] - psi[:,-1]) /(dy)
-        U_right = (psi[:,1] - psi[:,0]) /(dy)
-
-        
-        # Apply Neumann BC to omega
-        #omega[-1,2:-1] = (1/2*dy**2) * (8*psi[-1,1:-2] - psi[-1,:-3]) #- 3*(U_top[2:-1]+1) / dy
-        #omega[0,2:-1] = (1/2*dy**2) * (8*psi[0,1:-2] - psi[0,:-3]) #- 3*U_bottom[2:-1] / dy
-        #omega[2:-1,0] = (1/2*dy**2) * (8*psi[1:-2,0] - psi[:-3,0]) #- 3*U_left[2:-1] / dx
-        #omega[2:-1,-1] = (1/2*dy**2) * (8*psi[1:-2,-1] - psi[:-3,-1]) #- 3*U_right[2:-1] / dx
         
         # computr Omega
-        omega = laplace2d(omega.copy(), l2_target)
+        omega = laplace2d(omega.copy(), psi.copy(), l2_target)
                 
 
         
