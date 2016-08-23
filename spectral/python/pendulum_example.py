@@ -1,3 +1,6 @@
+# This is not a spectral method but it shows the use of an ode solver
+
+
 # The second order differential equation for the angle theta of a pendulum 
 # acted on by gravity with friction can be written:
 
