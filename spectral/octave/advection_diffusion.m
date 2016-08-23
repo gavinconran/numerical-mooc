@@ -9,6 +9,7 @@ y2=linspace(-Ly/2,Ly/2,ny+1); y=y2(1:ny);
 
 % INITIAL CONDITIONS
 [X,Y]=meshgrid(x,y);
+%w=1*exp(-0.25*(X-1).^2-2*Y.^2) -1*exp(-0.25*(X+1).^2-2*Y.^2);
 w=1*exp(-0.25*X.^2-Y.^2);
 figure(1), pcolor(abs(w)); 
 
@@ -18,7 +19,7 @@ kx=(2*pi/Lx)*[0:(nx/2-1) (-nx/2):-1]'; kx(1)=10^(-6);
 ky=(2*pi/Ly)*[0:(ny/2-1) (-ny/2):-1]'; ky(1)=10^(-6);
 
 % RHS of the system of differential equations which results from
-% Fourier transforming is contained within the function spc_rhsrhs
+% Fourier transforming is contained within the function spc_rhs
 function rhs=spc_rhs(tspan,wt2,dummy,psix,psiy,kx,ky,nu,nx,ny,N);
     wt=reshape(wt2,nx,ny);
     % w_x
@@ -54,6 +55,7 @@ endfunction
 
 % Streamfunction
 for stream_loop=1:30
+    % compute x, y derivatives of psi
     wt=fft2(w)/N;
     for j=1:ny
         psit(:,j)=-wt(:,j)./(kx.^2+ky(j)^2);
@@ -68,6 +70,7 @@ for stream_loop=1:30
     psiy=real(ifft2(psity*N));
 
     wt2=reshape(wt,N,1);
+    % solve omega -> wsol
     [t,wsol]=ode23(@spc_rhs,[0 0.5],wt2,[],psix,psiy,kx,ky,nu,nx,ny,N);
 
     wt2=wsol(end,:)';
@@ -76,7 +79,7 @@ for stream_loop=1:30
 
     figure(2)
     pcolor(abs(w)); 
-    pause(1)
+    pause(.2)
 end
 
 
